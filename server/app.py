@@ -18,27 +18,67 @@ db.init_app(app)
 
 @app.route('/events')
 def get_events():
-    pass
+    #return a list of all events
+    events = Event.query.all()
+    return jsonify([{
+        "id": event.id,
+        "name": event.name,
+        "location": event.location
+    } for event in events]), 200
 
 
 @app.route('/events/<int:id>/sessions')
 def get_event_sessions(id):
-    pass
+    #return a list of all sessions for a given event
+    event = Event.query.get(id)
+    if not event:
+        return jsonify({"error": "Event not found"}), 404
+
+    sessions = event.sessions
+    return jsonify([{
+        "id": session.id,
+        "title": session.title,
+        "start_time": session.start_time.isoformat() if session.start_time else None
+    } for session in sessions]), 200
 
 
 @app.route('/speakers')
 def get_speakers():
-    pass
+    #return a list of all speakers
+    speakers = Speaker.query.all()
+    return jsonify([{
+        "id": speaker.id,
+        "name": speaker.name
+    } for speaker in speakers]), 200    
 
 
 @app.route('/speakers/<int:id>')
 def get_speaker(id):
-    pass
+    #return a single speaker by id
+    speaker = Speaker.query.get(id)
+    if not speaker:
+        return jsonify({"error": "Speaker not found"}), 404
+
+    return jsonify({
+        "id": speaker.id,
+        "name": speaker.name,
+        "bio_text": speaker.bio.bio_text if speaker.bio else "No bio available"
+    }), 200
 
 
 @app.route('/sessions/<int:id>/speakers')
 def get_session_speakers(id):
-    pass
+    #return a list of all speakers for a given session
+    session = Session.query.get(id)
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
+    speakers = session.speakers
+    return jsonify([{
+        "id": speaker.id,
+        "name": speaker.name,
+        "bio_text": speaker.bio.bio_text if speaker.bio else None
+    } for speaker in speakers]), 200
+
 
 
 if __name__ == '__main__':
